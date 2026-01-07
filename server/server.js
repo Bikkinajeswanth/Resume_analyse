@@ -17,6 +17,7 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'https://resume-lyzer-frontend.vercel.app',
+  'https://resume-analyse-ecru.vercel.app',
 ];
 
 app.use(
