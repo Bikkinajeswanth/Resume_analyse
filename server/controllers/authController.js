@@ -11,13 +11,15 @@ const generateToken = (id) => {
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
-export const register = async (req, res) => {
+export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    console.log('Register request body:', req.body);
+
+    const { name, email, password } = req.body || {};
 
     // Validation
     if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Please provide all fields' });
+      return res.status(400).json({ message: 'Please provide name, email, and password' });
     }
 
     if (password.length < 6) {
@@ -38,35 +40,35 @@ export const register = async (req, res) => {
     });
 
     if (user) {
-      res.status(201).json({
+      return res.status(201).json({
         _id: user._id,
         name: user.name,
         email: user.email,
         token: generateToken(user._id),
       });
     } else {
-      res.status(400).json({ message: 'Invalid user data' });
+      return res.status(400).json({ message: 'Invalid user data' });
     }
   } catch (error) {
     console.error('Register error:', error);
-    
+
     // Check if it's a MongoDB connection error
     if (error.name === 'MongoServerError' || error.message.includes('MongoServerError')) {
-      return res.status(503).json({ 
-        message: 'Database connection failed. Please check MongoDB configuration.' 
+      return res.status(503).json({
+        message: 'Database connection failed. Please check MongoDB configuration.',
       });
     }
-    
+
     // Check if it's a validation error
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
-        message: error.message || 'Validation error' 
+      return res.status(400).json({
+        message: error.message || 'Validation error',
       });
     }
-    
-    res.status(500).json({ 
+
+    return res.status(500).json({
       message: error.message || 'Server error during registration',
-      ...(process.env.NODE_ENV === 'development' && { error: error.message })
+      ...(process.env.NODE_ENV === 'development' && { error: error.message }),
     });
   }
 };
@@ -74,9 +76,11 @@ export const register = async (req, res) => {
 // @desc    Authenticate a user
 // @route   POST /api/auth/login
 // @access  Public
-export const login = async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    console.log('Login request body:', req.body);
+
+    const { email, password } = req.body || {};
 
     // Validation
     if (!email || !password) {
@@ -87,18 +91,18 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email }).select('+password');
 
     if (user && (await user.matchPassword(password))) {
-      res.json({
+      return res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
         token: generateToken(user._id),
       });
     } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    return res.status(500).json({ message: error.message || 'Server error during login' });
   }
 };
 
@@ -108,14 +112,17 @@ export const login = async (req, res) => {
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
-    res.json({
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    return res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
     });
   } catch (error) {
     console.error('Get me error:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: error.message || 'Server error' });
   }
 };
 
