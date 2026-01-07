@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Base API URL should be JUST the origin, e.g.:
+// VITE_API_URL=https://resume-lyzer-backend.onrender.com
+// Then individual routes prepend /api/... as needed.
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const api = axios.create({
   baseURL: API_URL,

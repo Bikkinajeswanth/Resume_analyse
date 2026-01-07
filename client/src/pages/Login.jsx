@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import api from '../utils/api';
+import api, { API_URL } from '../utils/api';
 import { setAuthToken, setUser } from '../utils/auth';
 import Navbar from '../components/Navbar';
 
@@ -25,7 +25,8 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', formData);
+      // Use full URL so it works both locally and with the deployed backend
+      const response = await api.post(`${API_URL}/api/auth/login`, formData);
       const { token, ...userData } = response.data;
 
       setAuthToken(token);
