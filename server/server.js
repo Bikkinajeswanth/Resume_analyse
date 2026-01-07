@@ -13,22 +13,25 @@ connectDB();
 
 const app = express();
 
-// CORS configuration - allow Vercel frontend and local dev
 const allowedOrigins = [
-  'http://localhost:3000',
-  'https://resume-lyzer-frontend.vercel.app',
-  'https://resume-analyse-ecru.vercel.app',
+  "http://localhost:5173",
+  "https://resume-analyse-ecru.vercel.app",
+  "https://resume-analyse.vercel.app",
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error('Not allowed by CORS'), false);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
