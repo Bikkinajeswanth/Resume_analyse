@@ -17,11 +17,27 @@ const allowedOrigins = [
   'http://localhost:5173',
   'https://resume-analyse-ecru.vercel.app',
   'https://resume-analyse.vercel.app',
+  'https://resume-analyse-ecru.vercel.app/',
+  'https://resume-analyse.vercel.app/',
+  'https://resume-analyse-ecru.vercel.app/register',
+  'https://resume-analyse-ecru.vercel.app/login',
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      console.log('Origin trying:', origin);
+
+      // Allow server-side requests (no origin)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log('❌ BLOCKED BY CORS:', origin);
+      return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
